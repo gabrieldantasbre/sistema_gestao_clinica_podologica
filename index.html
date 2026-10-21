@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Gestão de Clinica Podologica</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <aside class="barra_lateral">
+            <div class="linhalogo">
+                <div class="logo"></div>
+                <div class="text_marca"><small>Gestão de clinica Podologica</small></div>
+            </div>
+            <nav class="guias" id="guiaNav">
+                <button class="guia-btn active" data-tab="agenda">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="14" height="13" rx="2"/><line x1="3" y1="8" x2="17" y2="8"/><line x1="7" y1="2" x2="7" y2="6"/><line x1="13" y1="2" x2="13" y2="6"/></svg>
+                    <span class="lbl">agenda</span></button>
+
+                <button class="guia-btn" data-tab="pacientes">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="7" r="3.2"/><path d="M4 17c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/></svg>
+                    <span class="lbl">Pacientes</span></button>
+
+                <button class="guia-btn" data-tab="atendimento">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2h7l3 3v13H5z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="12" x2="14" y2="12"/><line x1="8" y1="15" x2="12" y2="15"/></svg>
+                    <span class="lbl">atendimento</span></button>
+
+                <button class="guia-btn" data-tab="cobranca">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v8M12.6 8.2c0-1.2-1.2-2-2.6-2s-2.6.8-2.6 2 1.2 1.6 2.6 2 2.6.8 2.6 2-1.2 2-2.6 2-2.6-.8-2.6-2"/></svg>
+                <span class="lbl">Cobrança</span></button>
+
+                <button class="guia-btn" data-tab="estoque">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2.5 6v8L10 18l7.5-4V6z"/><path d="M2.5 6 10 10l7.5-4M10 10v8"/></svg>
+                    <span class="lbl">Estoque</span></button>
+            </nav>
+
+
+            <div class="barralateral_baixo">
+                <div class="caixa_perfil">
+                    <label for="selecaoPerfil">Perfil atual: </label>
+                    <select id="selecaoPerfil">
+                        <option value="recepcionista">recepcionista</option>
+                        <option value="podologo">Podologa</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+            </div>
+        </aside>
+
+        <main class="content">
+            <header class="barraCima">
+                <div>
+                    <h1 id="painelTitulo">Agenda</h1>
+                    <p id="painelsubtitulo">Consultas de hoje e proximos agendamentos</p>
+                </div>
+            </header>
+
+
+            <!-- Agenda-->
+            <section class="panel active" id="guia-agenda">
+                <div class="stat-row" id="statrow"></div>
+                <div class="grade-2">
+                    <div class="card">
+                        <h3>Novo agendamento</h3>
+                        <form id="formagendamento">
+                            <div class="field">
+                                <label for="agPaciente">Paciente</label>
+                                <select id="agPaciente" required></select>
+                            </div>
+                            <div class="field-row">
+                                <div class="field">
+                                    <label for="agData">Data</label>
+                                    <input type="date" id="agData" required>
+                                </div>
+                                <div class="field">
+                                    <label for="agHora">horas</label>
+                                    <input type="time" id="agHoras" required></div>
+                                </div>
+                            <div class="field">
+                                <label for="agObs">Observação</label>
+                                <input type="text" id="agObs" placeholder="Ex.: retorno, avaliação inicial.">
+                            </div>
+                        <button class="btn" type="submit">Agendar consulta</button>
+                    </form>
+                </div>
+                    <div class="card">
+                        <h3>Proximas consultas</h3>
+                        <div class="table-wrap" id="agendaList"></div>
+                    </div>
+                </div>
+            </section>
+            <!-- Pacientes -->
+
+            <section class="panel" id="guia-pacientes">
+                <div class="grade-2">
+                    <div class="card">
+                        <h3>Cadastrar paciente</h3>
+                        <form id="formPaciente">
+                            <div class="field">
+                                <label for="pcNome">Nome completo</label>
+                                <input type="text" id="pcNome" required>
+                            </div>
+                            <div class="field-row">
+                                <div class="field">
+                                    <label for="pcCpf">CPF</label>
+                                    <input type="text" id="pcCpf" placeholder="000.000.000-00" required>
+                                </div>
+                                <div class="field">
+                                    <label for="pcNasc">Nascimento</label>
+                                    <input type="date" id="pcNasc">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label for="pcTel">Telefone</label>
+                                <input type="tel" id="pcTel" placeholder="(11) 90000-0000">
+                            </div>
+                            <div class="field">
+                                <label for="pcEnd">Endereço</label>
+                                <input type="text" id="pcEnd" placeholder="Rua, numero, bairro">
+                            </div>
+                        <button class="btn" type="submit">Salvar cadastro</button>
+                    </form>
+                </div>
+                <div class="card">
+                    <h3>Pacientes cadastrados</h3>
+                    <input type="text" id="pcPesquisa" placeholder="Buscar por nome ou CPF..." style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--ink);margin-bottom:12px;font-size:13.5px;">
+                    <div class="table-wrap" id="listapacientes"></div>
+                </div>
+            </div>
+            </section>
+
+            <!-- ATENDIMENTO -->
+
+
+            <section class="panel" id="guia-atendimento">
+                <div class="grade-2">
+                    <div class="card">
+                        <h3>Registrar atendimento</h3>
+                        <form id="formAtendimento">
+                            <div class="field">
+                                <label for="atPaciente">Paciente</label>
+                                <select id="atPaciente" required></select>
+                            </div>
+                            <div class="field">
+                                <label for="atData">Data</label>
+                                <input type="date" id="atData" required>
+                            </div>
+                            <div class="field">
+                                <label for="atQueixa">Queixa principal</label>
+                                <input type="text" id="atQueixa" placeholder="Ex.: unha encravada, calosidade..." required>
+                            </div>
+                            <div class="field">
+                                <label for="atProc">Procedimento realizado</label>
+                                <input type="text" id="atProc" placeholder="Ex.: podotomia, lixamento, curativo...">
+                            </div>
+                            <div class="field">
+                                <label for="atObs">Evolução / Observação</label>
+                                <textarea id="atObs"></textarea>
+                            </div>
+                            <button class="btn" type="submit"> Salvar prontruario</button>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <h3>Historico de prontuario</h3>
+                        <div class="table-wrap" id="prontruarioList"></div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Cobrança -->
+            <section class="panel" id="guia-cobranca">
+                <div class="grade-2">
+                    <div class="card">
+                        <h3>Lançar cobranças</h3>
+                        <form id="formCobranca">
+                            <div class="field">
+                                <label for="cbPaciente">Paciente</label>
+                                <select id="cbPaciente" required></select>
+                            </div>
+
+                            <div class="field-row">
+                                <div class="field">
+                                    <label for="cbValor">Valor (R$)</label>
+                                    <input type="number" id="cbValor" min="0" step="0.01" required>
+                                </div>
+                                <div class="field">
+                                    <label for="cbForma">Forma de pagamento</label>
+                                    <select id="cbForma">
+                                        <option>Pix</option>
+                                        <option>Cartão</option>
+                                        <option>Dinheiro</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label for="cbStatus">Status</label>
+                                <select id="cbStatus">
+                                    <option value="pendente">Pendente</option>
+                                    <option value="pago">Pago</option>
+                                </select>
+                            </div>
+                            <button class="btn" type="submit">Registrar cobranÃ§a</button>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <h3>Cobranças</h3>
+                        <div class="table-wrap" id="cobrancaList"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!--Estoque  -->
+
+            <section class="panel" id="guia-estoque">
+                <div class="grade-2">
+                    <div class="card">
+                        <h3>Novo item</h3>
+                        <form id="formEstoque">
+                            <div class="field">
+                                <label for="esNome">Material</label>
+                                <input type="text" id="esNome" placeholder="Ex.: Luvas descartaveis" required>
+                            </div>
+
+                            <div class="field-row">
+                                <div class="field">
+                                    <label for="esQtd">Quantidade</label>
+                                    <input type="number" id="esQtd" min="0" required>
+                                </div>
+
+                                <div class="field">
+                                    <label for="esUnidade">Unidade</label>
+                                    <input type="text" id="esUnidade" placeholder="un, par, frasco...">
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label for="esMin">Estoque minimo (Alerta)</label>
+                                <input type="number" id="esMin" min="0" value="5">
+                            </div>
+
+                            <button class="btn" type="submit">Adicionar ao estoque</button>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <h3>Itens em estoque</h3>
+                        <div class="table-wrap" id="estoqueList"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
