@@ -166,15 +166,15 @@
         var cards = [
             { num: consultaHoje, lbl: "Consultas hoje" },
             { num: state.pacientes.length, lbl: "Pacientes cadastrados" },
-            { num: pendencias, lbl: "CobranÃ§as pendentes", warn: pendencias > 0 },
+            { num: pendencias, lbl: "Cobranças pendentes", warn: pendencias > 0 },
             { num: estoqueBaixo, lbl: "Itens com estoque baixo", warn: estoqueBaixo > 0 }
         ];
         document.getElementById("statRow").innerHTML = cards.map(function (c) {
-            return '<div class="stat-card' + (c.warn ? "warn" : "") + '"><div class="num">' + c.num + '</div><div class="lbl">' + c.lbl + "</div></div>";
+            return '<div class="stat-card' + (c.warn ? "warn" : "") + '"><div class="num">' + c.num + '</div><div class="lbl">' + c.lbl + '</div></div>';
         }).join("");
     }
 
-    function renderAgenda() {
+    function carregarAgenda() {
         var rows = state.agenda.slice().sort(function (a, b) { return (a.data + a.hora).localeCompare(b.data + b.hora); });
 
         var el = document.getElementById("agendaList");
@@ -192,11 +192,11 @@
 
         el.innerHTML = '<table><thead><tr><th>Paciente</th><th>Data</th><th>Hora</th><th>Status</th></tr></thead><tbody>' + rows.map(function (a) {
             var st = statusLabel[a.status] || ["Agendado", "pending"];
-            return "<tr><td>" + esc(pacienteNome(a.pacienteId)) + (a.obs ? '<div style="color: var( --muted); font-size:12px;">' + "</div>" : "") + "</td><td>" + fmtDate(a.data) + esc(a.hora) + '</td><td><span class="badge ' + st[1] + '">' + st[0] + "</span></td></tr>";
+            return "<tr><td>" + esc(pacienteNome(a.pacienteId)) + (a.obs ? '<div style="color: var( --muted); font-size:12px;">' + '</div>' : "") + "</td><td>" + fmtDate(a.data) + esc(a.hora) + '</td><td><span class="badge ' + st[1] + '">' + st[0] + "</span></td></tr>";
         }).join("") + "</tbody></table>";
     }
 
-    document.getElementById("formAgenda").addEventListener("submit", function (e) {
+    document.getElementById("formagendamento").addEventListener("submit", function (e) {
         e.preventDefault();
         if (!state.pacientes.length) { 
             alert("Cadastre um paciente antes de agendar."); return; 
@@ -214,7 +214,7 @@
 
         save(CHAVES.agenda, state.agenda);
         e.target.reset();
-        renderAgenda();
+        carregarAgenda();
         carregarStats();
     });
 
@@ -271,9 +271,30 @@
             nome: nome,
             cpf: cpf,
             telefone: document.getElementById("pcTel").value.trim(),
-        })
+            endereco: document.getElementById("pcEnd").value,
+            nascimento: document.getElementById("pcNas").value.trim()
+        });
+
+        save(CHAVES.pacientes, state.pacientes);
+        e.target.reset();
+        fillPacienteSelects();
+        carregarPaciente(), carregarStats();
 
     });
+
+    function carregarProntuario() {
+        var el = document.getElementById("prontuarioList");
+        var rows = state.prontuarios.slice().sort(function (a, b) { 
+            return b.data.localeCompare(a.data);
+        })
+
+        if (!rows.length) {
+            el.innerHTML = '<div class="field"> Nenhum atendimento registrado ainda. </div>'; return;
+        }
+    }
+
+
+
 
 
 })();
