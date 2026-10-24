@@ -114,9 +114,9 @@
 
 
         state.estoque = [
-            { id: uid(), nome: "Luvas descartÃ¡veis", quantidade: 40, minimo: 20, unidade: "par" },
-            { id: uid(), nome: "Ãlcool 70%", quantidade: 3, minimo: 2, unidade: "frasco" },
-            { id: uid(), nome: "LÃ¢minas de bisturi nÂº15", quantidade: 6, minimo: 10, unidade: "un" }
+            { id: uid(), nome: "Luvas descartaveis", quantidade: 40, minimo: 20, unidade: "par" },
+            { id: uid(), nome: "alcool 70%", quantidade: 3, minimo: 2, unidade: "frasco" },
+            { id: uid(), nome: "Laminas de bisturi", quantidade: 6, minimo: 10, unidade: "un" }
         ];
         persistAll();
     }
