@@ -78,7 +78,7 @@
                                 </div>
                                 <div class="field">
                                     <label for="agHora">horas</label>
-                                    <input type="time" id="agHoras" required></div>
+                                    <input type="time" id="agHora" required></div>
                                 </div>
                             <div class="field">
                                 <label for="agObs">Observação</label>
@@ -108,10 +108,11 @@
                                 <div class="field">
                                     <label for="pcCpf">CPF</label>
                                     <input type="text" id="pcCpf" placeholder="000.000.000-00" required>
+                                    <small id="pcMsg" role="status" aria-live="polite"></small>
                                 </div>
                                 <div class="field">
-                                    <label for="pcNasc">Nascimento</label>
-                                    <input type="date" id="pcNasc">
+                                    <label for="pcNas">Nascimento</label>
+                                    <input type="date" id="pcNas">
                                 </div>
                             </div>
                             <div class="field">
@@ -166,7 +167,7 @@
                     </div>
                     <div class="card">
                         <h3>Historico de prontuario</h3>
-                        <div class="table-wrap" id="prontruarioList"></div>
+                        <div class="table-wrap" id="prontuarioList"></div>
                     </div>
                 </div>
             </section>
@@ -204,7 +205,7 @@
                                     <option value="pago">Pago</option>
                                 </select>
                             </div>
-                            <button class="btn" type="submit">Registrar cobranÃ§a</button>
+                            <button class="btn" type="submit">Registrar cobrança</button>
                         </form>
                     </div>
                     <div class="card">

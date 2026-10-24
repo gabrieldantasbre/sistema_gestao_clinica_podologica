@@ -44,7 +44,7 @@
         return p.length === 3 ? p[2] + "/" + p[1] + "/" + p[0] : iso;
     }
     function fmtMoney(n) {
-        return "R$ " + Number(n || 0).toLocaleString("pt_BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return "R$ " + Number(n || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
     function onlyDigits(s) { return (s || "").replace(/\D/g, ""); }
     function esc(s) {
@@ -121,6 +121,34 @@
         persistAll();
     }
 
+ 
+    if (localStorage.getItem(CHAVES.financeiro) === null && state.pacientes.length) {
+        state.financeiro = [{
+            id: uid(), pacienteId: state.pacientes[0].id, valor: 120,
+            forma: "Pix", status: "pago", data: todayISO()
+        }];
+        save(CHAVES.financeiro, state.financeiro);
+    }
+    var chaveMigracaoFinanceiro = CHAVES.financeiro + "_migracao_exemplos_v1";
+    if (!localStorage.getItem(chaveMigracaoFinanceiro)) {
+        if (!state.financeiro.length && state.pacientes.length) {
+            state.financeiro = [{
+                id: uid(), pacienteId: state.pacientes[0].id, valor: 120,
+                forma: "Pix", status: "pago", data: todayISO()
+            }];
+            save(CHAVES.financeiro, state.financeiro);
+        }
+        localStorage.setItem(chaveMigracaoFinanceiro, "1");
+    }
+    if (localStorage.getItem(CHAVES.estoque) === null) {
+        state.estoque = [
+            { id: uid(), nome: "Luvas descartáveis", quantidade: 40, minimo: 20, unidade: "par" },
+            { id: uid(), nome: "Álcool 70%", quantidade: 3, minimo: 2, unidade: "frasco" },
+            { id: uid(), nome: "Lâminas de bisturi nº 15", quantidade: 6, minimo: 10, unidade: "un" }
+        ];
+        save(CHAVES.estoque, state.estoque);
+    }
+
     function persistAll() {
         save(CHAVES.pacientes, state.pacientes);
         save(CHAVES.agenda, state.agenda);
@@ -169,8 +197,8 @@
             { num: pendencias, lbl: "Cobranças pendentes", warn: pendencias > 0 },
             { num: estoqueBaixo, lbl: "Itens com estoque baixo", warn: estoqueBaixo > 0 }
         ];
-        document.getElementById("statRow").innerHTML = cards.map(function (c) {
-            return '<div class="stat-card' + (c.warn ? "warn" : "") + '"><div class="num">' + c.num + '</div><div class="lbl">' + c.lbl + '</div></div>';
+        document.getElementById("statrow").innerHTML = cards.map(function (c) {
+            return '<div class="stat-card' + (c.warn ? " warn" : "") + '"><div class="num">' + c.num + '</div><div class="lbl">' + c.lbl + '</div></div>';
         }).join("");
     }
 
@@ -222,13 +250,13 @@
 
     function carregarPaciente(filter) {
 
-        var el = document.getElementById("pacientesList");
+        var el = document.getElementById("listapacientes");
         var lista = state.pacientes;
 
         if (filter) {
             var f = filter.toLowerCase();
             lista = lista.filter(function (p) {
-                return p.nome.toLowerCase().indexOf(f) > 1 || onlyDigits(p.cpf).indexOf(onlyDigits(f)) > -1;
+                return p.nome.toLowerCase().indexOf(f) > -1 || onlyDigits(p.cpf).indexOf(onlyDigits(f)) > -1;
             });
         }
 
@@ -250,7 +278,7 @@
         e.preventDefault();
 
         var msg = document.getElementById("pcMsg");
-        msg.textContent = "";
+        if (msg) msg.textContent = "";
 
         var nome = document.getElementById("pcNome").value.trim();
         var cpf = document.getElementById("pcCpf").value.trim();
@@ -262,11 +290,11 @@
         })[0];
 
         if (existentes) {
-            msg.textContent = "Já existe um paciente cadastrado com esse CPF: " + existentes.nome;
+            if (msg) msg.textContent = "Já existe um paciente cadastrado com esse CPF: " + existentes.nome;
             return;
         }
 
-        statusbar.pacientes.push({
+        state.pacientes.push({
             id: uid(),
             nome: nome,
             cpf: cpf,
@@ -291,10 +319,127 @@
         if (!rows.length) {
             el.innerHTML = '<div class="field"> Nenhum atendimento registrado ainda. </div>'; return;
         }
+        el.innerHTML = '<table><thead><tr><th>Paciente</th><th>Data</th><th>Queixa / procedimento</th></tr></thead><tbody>' + rows.map(function (r) {
+            return "<tr><td>" + esc(pacienteNome(r.pacienteId)) + "</td><td>" + fmtDate(r.data) + "</td><td>" + esc(r.queixa) + (r.procedimento ? '<div style="color: var(--muted); font-size: 12px;">' + esc(r.procedimento) + "</div>" : "") + "</td></tr>";
+        }).join("") + "</tbody></table>";
     }
 
+    document.getElementById("formAtendimento").addEventListener("submit", function (e) {
+        e.preventDefault();
+        if (!state.pacientes.length) {
+            alert("Cadastre um paciente antes de registrar um atendimento."); return;
+        }
+
+        state.prontuarios.push({
+            id: uid(),
+            pacienteId: document.getElementById("atPaciente").value,
+            data: document.getElementById("atData").value || todayISO(),
+            queixa: document.getElementById("atQueixa").value.trim(),
+            procedimento: document.getElementById("atProc").value.trim(),
+            obs: document.getElementById("atObs").value.trim()
+        });
+
+        save(CHAVES.prontuarios, state.prontuarios);
+        e.target.reset();
+        carregarProntuario();
+    });
+
+    // cobrança -----------------
+    function carregarCobranca() {
+        var el = document.getElementById("cobrancaList");
+        var rows = state.financeiro.slice().sort(function (a, b) {
+            return String(b.data || "").localeCompare(String(a.data || ""));
+        });
+
+        if (!rows.length) {
+            el.innerHTML = '<div class="empty">Nenhuma cobrança registrada ainda.</div>'; return;
+        }
+
+        el.innerHTML = '<table><thead><tr><th>Paciente</th><th>Valor</th><th>Forma</th><th>Status</th></tr></thead><tbody>' + rows.map (function (f) {
+            var badge = f.status === "pago" ? '<span class="badge ok">Pago</span>' : '<span class="badge pending">Pendente</span>';
+            return "<tr><td>" + esc(pacienteNome(f.pacienteId)) + "</td><td>" + fmtMoney(f.valor) + "</td><td>" + esc(f.forma) + "</td><td>" + badge + "</td></tr>";
+        }).join("") + "</tbody></table>";
+    }
+
+    document.getElementById("formCobranca").addEventListener("submit", function(e) {
+        e.preventDefault();
+        if (!state.pacientes.length) {
+            alert("Cadastre um paciente antes de lançar uma cobrança."); return;
+        }
+
+        state.financeiro.push({
+            id: uid(),
+            pacienteId: document.getElementById("cbPaciente").value,
+            valor: parseFloat(document.getElementById("cbValor").value || "0"),
+            forma: document.getElementById("cbForma").value,
+            status: document.getElementById("cbStatus").value,
+            data: todayISO()
+        });
+
+
+        save(CHAVES.financeiro, state.financeiro);
+        e.target.reset();
+        carregarCobranca();
+        carregarStats();
+    });
+
+    // Estoque -----------
+
+    function carregarEstoque() {
+        var el = document.getElementById("estoqueList");
+        if (!state.estoque.length) {
+            el.innerHTML = '<div class="empty">Nenhum item cadastrado ainda.</div>'; return;
+        }
+
+        el.innerHTML = '<table><thead><tr><th>Material</th><th>Quantidade</th><th></th></tr></thead><tbody>' + 
+            state.estoque.map(function (it) {
+                var low = Number(it.quantidade) <=Number(it.minimo);
+                return "<tr><td>" + esc(it.nome) + (low ? ' <span class="badge low">Estoque baixo</span>' : "") + '</td><td><div class="qty-ctl">' +
+                '<button type="button" data-act="dec" data-id="' + it.id + '">−</button><span>' + it.quantidade + " " + esc(it.unidade || "un") + '</span>' +
+                '<button type="button" data-act="inc" data-id="' + it.id + '">+</button></div></td><td></td></tr>';
+            }).join("") + "</tbody></table>";
+    }
+
+    document.getElementById("formEstoque").addEventListener("submit", function (e) {
+        e.preventDefault();
+        state.estoque.push({
+            id: uid(),
+            nome: document.getElementById("esNome").value.trim(),
+            quantidade: Number(document.getElementById("esQtd").value || 0),
+            unidade: document.getElementById("esUnidade").value.trim(),
+            minimo: Number(document.getElementById("esMin").value || 0)
+        });
+        save(CHAVES.estoque, state.estoque);
+        e.target.reset();
+        document.getElementById("esMin").value = 5;
+        carregarEstoque();
+        carregarStats();
+    });
+
+    document.getElementById("estoqueList").addEventListener("click", function (e) {
+        var btn = e.target.closest("button[data-act]");
+        if(!btn) return;
+        var item = state.estoque.filter(function (i) {
+            return i.id === btn.dataset.id;
+        })[0];
+
+        if (!item) return;
+        item.quantidade = Math.max(0, Number(item.quantidade) + (btn.dataset.act === "inc" ? 1 : -1));
+        save(CHAVES.estoque, state.estoque);
+        carregarEstoque();
+        carregarStats();
+    });
 
 
 
-
+    // INIT
+    document.getElementById("agData").value = todayISO();
+    document.getElementById("atData").value = todayISO();
+    fillPacienteSelects();
+    carregarPaciente();
+    carregarStats();
+    carregarAgenda();
+    carregarProntuario();
+    carregarCobranca();
+    carregarEstoque();
 })();
